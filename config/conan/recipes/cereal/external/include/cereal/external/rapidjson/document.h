@@ -176,7 +176,7 @@ public:
     //! @name relations
     //@{
     bool operator==(ConstIterator that) const { return ptr_ == that.ptr_; } const
-    #if __cplusplus <= 201703L
+    #if __cplusplus <= 201703L || !defined(__clang__)
     bool operator!=(ConstIterator that) const { return ptr_ != that.ptr_; } const
     #endif
     bool operator<=(ConstIterator that) const { return ptr_ <= that.ptr_; } const
