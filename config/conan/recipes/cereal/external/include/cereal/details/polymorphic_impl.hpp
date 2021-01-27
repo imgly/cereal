@@ -131,13 +131,22 @@ namespace cereal
       std::multimap<std::type_index, std::type_index> reverseMap;
 
       //! Error message used for unregistered polymorphic casts
-#define UNREGISTERED_POLYMORPHIC_CAST_EXCEPTION(LoadSave) \
+#if defined(IMGLY_NOEXCEPTIONS)
+        #define UNREGISTERED_POLYMORPHIC_CAST_EXCEPTION(LoadSave) \
         fprintf(stderr,"[cereal] %s\n", \
                         "Trying to " #LoadSave " a registered polymorphic type with an unregistered polymorphic cast.\n"                                               \
                         "Could not find a path to a base class (" + util::demangle(baseInfo.name()) + ") for type: " + ::cereal::util::demangledName<Derived>() + "\n" \
                         "Make sure you either serialize the base class at some point via cereal::base_class or cereal::virtual_base_class.\n"                          \
                         "Alternatively, manually register the association with CEREAL_REGISTER_POLYMORPHIC_RELATION."); \
         abort();
+#else
+        #define UNREGISTERED_POLYMORPHIC_CAST_EXCEPTION(LoadSave)                                                                                                                \
+        throw cereal::Exception("Trying to " #LoadSave " a registered polymorphic type with an unregistered polymorphic cast.\n"                                               \
+                                "Could not find a path to a base class (" + util::demangle(baseInfo.name()) + ") for type: " + ::cereal::util::demangledName<Derived>() + "\n" \
+                                "Make sure you either serialize the base class at some point via cereal::base_class or cereal::virtual_base_class.\n"                          \
+                                "Alternatively, manually register the association with CEREAL_REGISTER_POLYMORPHIC_RELATION.");
+#endif
+
       //! Checks if the mapping object that can perform the upcast or downcast exists, and returns it if so
       /*! Uses the type index from the base and derived class to find the matching
           registered caster. If no matching caster exists, the bool in the pair will be false and the vector

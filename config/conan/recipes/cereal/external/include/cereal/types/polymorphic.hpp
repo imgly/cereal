@@ -185,6 +185,7 @@ namespace cereal
   {
     //! Error message used for unregistered polymorphic types
     /*! @internal */
+#if defined(IMGLY_NOEXCEPTIONS)
     #define UNREGISTERED_POLYMORPHIC_EXCEPTION(LoadSave, Name)                                                                                      \
       fprintf(stderr,"[cereal] %s\n", \
                       "Trying to " #LoadSave " an unregistered polymorphic type (" + Name + ").\n"                                          \
@@ -192,6 +193,13 @@ namespace cereal
                       "you are using was included (and registered with CEREAL_REGISTER_ARCHIVE) prior to calling CEREAL_REGISTER_TYPE.\n"   \
                       "If your type is already registered and you still see this error, you may need to use CEREAL_REGISTER_DYNAMIC_INIT."); \
       abort();
+#else
+    #define UNREGISTERED_POLYMORPHIC_EXCEPTION(LoadSave, Name)                                                                                      \
+      throw cereal::Exception("Trying to " #LoadSave " an unregistered polymorphic type (" + Name + ").\n"                                          \
+                              "Make sure your type is registered with CEREAL_REGISTER_TYPE and that the archive "                                   \
+                              "you are using was included (and registered with CEREAL_REGISTER_ARCHIVE) prior to calling CEREAL_REGISTER_TYPE.\n"   \
+                              "If your type is already registered and you still see this error, you may need to use CEREAL_REGISTER_DYNAMIC_INIT.");
+#endif
 
     //! Get an input binding from the given archive by deserializing the type meta data
     /*! @internal */
@@ -277,8 +285,12 @@ namespace cereal
     {
       if(nameid & detail::msb2_32bit)
       {
+#if defined(IMGLY_NOEXCEPTIONS)
         fprintf(stderr,"Cannot load a polymorphic type that is not default constructable and does not have a load_and_construct function");
         abort();
+#else
+        throw cereal::Exception("Cannot load a polymorphic type that is not default constructable and does not have a load_and_construct function");
+#endif
       }
       return false;
     }
@@ -297,8 +309,12 @@ namespace cereal
     {
       if(nameid & detail::msb2_32bit)
       {
+#if defined(IMGLY_NOEXCEPTIONS)
         fprintf(stderr,"Cannot load a polymorphic type that is not default constructable and does not have a load_and_construct function");
         abort();
+#else
+        throw cereal::Exception("Cannot load a polymorphic type that is not default constructable and does not have a load_and_construct function");
+#endif
       }
       return false;
     }

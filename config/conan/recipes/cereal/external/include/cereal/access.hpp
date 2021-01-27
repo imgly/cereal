@@ -185,8 +185,12 @@ namespace cereal
       T * operator->()
       {
         if( !itsValid ) {
-          fprintf(stderr,"[cereal] Object must be initialized prior to accessing members");
+#if defined(IMGLY_NOEXCEPTIONS)
+          fprintf(stderr, "[cereal] Object must be initialized prior to accessing members");
           abort();
+#else
+          throw Exception("Object must be initialized prior to accessing members");
+#endif
         }
 
         return itsPtr;
@@ -342,8 +346,12 @@ namespace cereal
   void construct<T>::operator()( Args && ... args )
   {
     if( itsValid ){
-      fprintf(stderr,"[cereal] Attempting to construct an already initialized object");
+#if defined(IMGLY_NOEXCEPTIONS)
+      fprintf(stderr, "[cereal] Attempting to construct an already initialized object");
       abort();
+#else
+      throw Exception("Attempting to construct an already initialized object");
+#endif
     }
 
     ::cereal::access::construct( itsPtr, std::forward<Args>( args )... );

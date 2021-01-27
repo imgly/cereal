@@ -461,8 +461,12 @@ namespace cereal
         auto decoded = base64::decode( encoded );
 
         if( size != decoded.size() ){
+#if defined(IMGLY_NOEXCEPTIONS)
           fprintf(stderr,"[cereal] Decoded binary data size does not match specified size");
           abort();
+#else
+          throw Exception("Decoded binary data size does not match specified size");
+#endif
         }
           
 
@@ -514,9 +518,12 @@ namespace cereal
               case Value : return itsValueItBegin[itsIndex];
               case Member: return itsMemberItBegin[itsIndex].value;
               default:
+#if defined(IMGLY_NOEXCEPTIONS)
                 fprintf(stderr,"[cereal] JSONInputArchive internal error: null or empty iterator to object or array!");
                 abort();
-                
+#else
+                throw cereal::Exception("JSONInputArchive internal error: null or empty iterator to object or array!");
+#endif
             }
           }
 
@@ -545,8 +552,12 @@ namespace cereal
                 return;
               }
             }
+#if defined(IMGLY_NOEXCEPTIONS)
             fprintf(stderr,"[cereal] JSON Parsing failed - provided NVP (%s) not found", searchName);
             abort();
+#else
+            throw Exception("JSON Parsing failed - provided NVP (" + std::string(searchName) + ") not found");
+#endif
           }
 
         private:
